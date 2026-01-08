@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -121,7 +121,56 @@ const Index = () => {
     const index = filtered.findIndex(v => v.id === video.id);
     setCurrentVideo(video);
     setCurrentIndex(index);
+    incrementViews(video.id);
   };
+
+  const incrementViews = (videoId: string) => {
+    setVideos(prevVideos => prevVideos.map(v => {
+      if (v.id === videoId) {
+        const viewsNum = parseFloat(v.views.replace('M', '').replace('K', ''));
+        const multiplier = v.views.includes('M') ? 1000000 : 1000;
+        const newViews = viewsNum * multiplier + Math.floor(Math.random() * 50) + 10;
+        
+        let formatted;
+        if (newViews >= 1000000) {
+          formatted = (newViews / 1000000).toFixed(1) + 'M';
+        } else if (newViews >= 1000) {
+          formatted = (newViews / 1000).toFixed(0) + 'K';
+        } else {
+          formatted = newViews.toString();
+        }
+        
+        return { ...v, views: formatted };
+      }
+      return v;
+    }));
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVideos(prevVideos => prevVideos.map(v => {
+        if (Math.random() > 0.7) {
+          const viewsNum = parseFloat(v.views.replace('M', '').replace('K', ''));
+          const multiplier = v.views.includes('M') ? 1000000 : 1000;
+          const newViews = viewsNum * multiplier + Math.floor(Math.random() * 100) + 50;
+          
+          let formatted;
+          if (newViews >= 1000000) {
+            formatted = (newViews / 1000000).toFixed(1) + 'M';
+          } else if (newViews >= 1000) {
+            formatted = (newViews / 1000).toFixed(0) + 'K';
+          } else {
+            formatted = newViews.toString();
+          }
+          
+          return { ...v, views: formatted };
+        }
+        return v;
+      }));
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const closeVideo = () => {
     setCurrentVideo(null);
@@ -219,7 +268,7 @@ const Index = () => {
                     <p className="text-sm text-white/80 mb-2">{video.description}</p>
                     <div className="flex items-center gap-4 text-sm text-white/70">
                       <span className="font-medium">{video.channel}</span>
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 transition-all duration-300">
                         <Icon name="Eye" size={14} />
                         {video.views}
                       </span>

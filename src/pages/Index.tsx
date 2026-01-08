@@ -310,6 +310,7 @@ const Index = () => {
               src={currentVideo.videoUrl}
               controls
               autoPlay
+              onEnded={nextVideo}
               className="w-full rounded-2xl flex-1 object-contain"
             />
             
